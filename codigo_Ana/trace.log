@@ -1,0 +1,12 @@
+{"level":"info","message":"Info level log","service":"user-service","timestamp":"2024-05-14T11:03:12.144Z"}
+{"level":"error","message":"Error level log","service":"user-service","timestamp":"2024-05-14T11:03:12.153Z"}
+{"level":"info","message":"Server running on port 3000","service":"user-service","timestamp":"2024-05-14T11:03:12.289Z"}
+{"level":"info","message":"Server running on port 3001","service":"user-service","timestamp":"2024-05-14T11:03:12.292Z"}
+{"level":"info","message":"Server running on port 3002","service":"user-service","timestamp":"2024-05-14T11:03:12.292Z"}
+{"level":"info","message":"Server running on port 3003","service":"user-service","timestamp":"2024-05-14T11:03:12.293Z"}
+{"level":"info","message":"Info level log","service":"user-service","timestamp":"2024-05-18T17:34:26.522Z"}
+{"level":"error","message":"Error level log","service":"user-service","timestamp":"2024-05-18T17:34:26.529Z"}
+{"level":"info","message":"Server running on port 3000","service":"user-service","timestamp":"2024-05-18T17:34:26.571Z"}
+{"level":"info","message":"Server running on port 3001","service":"user-service","timestamp":"2024-05-18T17:34:26.574Z"}
+{"level":"info","message":"Server running on port 3002","service":"user-service","timestamp":"2024-05-18T17:34:26.575Z"}
+{"level":"info","message":"Server running on port 3003","service":"user-service","timestamp":"2024-05-18T17:34:26.576Z"}
