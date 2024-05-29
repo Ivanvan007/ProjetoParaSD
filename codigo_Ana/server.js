@@ -1,10 +1,35 @@
+//"use strict";
+
 const express = require('express'); // Import express
 const crypto = require('crypto'); // Import crypto module
 const fs = require('fs'); // Import fs module
 const path = require('path'); // Import path module
+const axios = require('axios');
+const winston = require('winston'); // Import winston module
 
 var serverApp = express();
 
+// Define ports for your nodes
+const ports = [3000, 3001, 3002, 3003];
+ports.forEach(port => {
+    setupServer(port);
+});
+const HASH_MODULO = 3;  // Assuming three data nodes
+const NODES = [
+    { id: 1, url: 'http://localhost:3001' },
+    { id: 2, url: 'http://localhost:3002' },
+    { id: 3, url: 'http://localhost:3003' }
+]; // List of all nodes
+
+let currentTerm;
+let votedFor;
+let myNodeId; // Define o ID do nó atual
+let voteCount = 0;
+
+let userId;
+let userData;
+let filename;
+let filepath;
 
 
 // Directory to store user data files (a nossa base de dados)
@@ -18,8 +43,6 @@ function generateMD5Hash(input) {
     return crypto.createHash('md5').update(input).digest('hex');
 }
 
-
-const winston = require('winston'); // Import winston module
 
 const logger = winston.createLogger({ // Create a logger instance
     level: 'info', // Set log level to info
@@ -48,11 +71,6 @@ logger.error('Error level log'); // Log an error level message //.error faz com 
 // Setup each instance with specific configurations
 function setupServer(port) {
     serverApp.use(express.json());
-    let userId;
-    let userData;
-    let filename;
-    let filepath;
-
     // Add your routes and middleware to serverApp
     // POST route to create a new user or update existing user data
     serverApp.post('/db/c', (req, res) => {
@@ -131,8 +149,8 @@ function setupServer(port) {
 
     // Route for setting the master DN //DN = Data Node (Node that stores data)
     serverApp.get('/set_master', (req, res) => {
-        let masterId = req.query.masterId;
-        let dnId = req.query.dnId;
+        let masterId;
+        let dnId = req.body.dnId;
 
         if (!masterId || !dnId) {
             return res.status(400).json({ error: 'Missing masterId or dnId' });
@@ -147,8 +165,10 @@ function setupServer(port) {
     serverApp.get('/election', (req, res) => {
         // This should involve some logic to participate in the election
         // For example, determining if this node should become the master
-        conductElection(req.query.myNodeId).then(() => {
+        conductElection().then(() => {
+            console.log("antes");
             res.status(200).send('Participated in election');
+            console.log("dps");
         }).catch(error => {
             logger.error('Election error', error);
             res.status(500).send('Election error');
@@ -164,49 +184,57 @@ function setupServer(port) {
     });
 }
 
-// Define ports for your nodes
-const ports = [3000, 3001, 3002, 3003];
-ports.forEach(port => {
-    setupServer(port);
-});
-
-
-
-const HASH_MODULO = 3;  // Assuming three data nodes
-
 function getShardId(key) {
     const hash = generateMD5Hash(key);
     return parseInt(hash, 16) % HASH_MODULO;
 }
 
-const axios = require('axios');
-const NODES = [
-    { id: 1, url: 'http://localhost:3001' },
-    { id: 2, url: 'http://localhost:3002' },
-    { id: 3, url: 'http://localhost:3003' }
-]; // List of all nodes
-
+async function requestVote(node, term) {
+    try {
+        const response = await axios.post(`${node.url}/requestVote`, {
+            term,
+            candidateId: myNodeId
+        });
+        return response.data;
+    } catch (err) {
+        return null;
+    }
+}
 
 // Function to conduct election: myNodeId is the ID of the node that initiates the election
 // This function sends election requests to higher nodes and becomes the master if no active node is found
 //Se esta função elegir um nó como master, esse nó será obrigatoriamente o nó myNodeId, ou seja, o nó que iniciou a eleição.
-async function conductElection(myNodeId) {
-    const promises = NODES.filter(node => node.id > myNodeId)
-        .map(node => axios.get(`${node.url}/election`).catch(err => null)); // Send election request to higher nodes
+let promises;
+let results;
+async function conductElection() {
+    currentTerm++;
+    myNodeId = crypto.randomInt(0,4);
+    votedFor = myNodeId;
+    voteCount += 1;
 
-    const results = await Promise.all(promises); // Wait for all responses
-    const stillActive = results.some(result => result && result.status === 200); // Check if any node is still active, i.e., has not become the master
+    promises = NODES.filter(node => node.id !== myNodeId)
+        .map(node => requestVote(node, currentTerm));
 
-    if (!stillActive) // If no active node is found (all nodes have become master), elect this node as master
-    {
+    results = await Promise.all(promises);
 
+    results.forEach(result => {
+        if (result && result.voteGranted) {
+            voteCount++;
+        }
+    });
+
+    if (voteCount > NODES.length / 2) {
         NODES.forEach(node => {
-            if (node.id !== myNodeId)  //Se o nó não for o meu
-            {
-                axios.get(`${node.url}/set_master?masterId=${myNodeId}`);
+            if (node.id !== myNodeId) {
+                axios.post(`${node.url}/setLeader`, {
+                    term: currentTerm,
+                    leaderId: myNodeId
+                });
             }
         });
-        logElectionProcess(`Node ${myNodeId} is elected as master`);
+        console.log(`Node ${myNodeId} is elected as leader`);
+    } else {
+        console.log(`Node ${myNodeId} failed to become leader`);
     }
 }
 
