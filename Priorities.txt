@@ -1,0 +1,23 @@
+O que ver:
+-index.ts(mais importante) aqui dentro o mais importante é(tudo mas ha funções que nao precissamos)
+-subGroups.ts(pode dar uma idea para Organizar a estrutura)
+-dbParcial.json
+-fileRoute.ts importante
+-proxyRoute.ts
+-subServerRoutes.ts importante
+-module.ts importante (tudo é util)
+-chooseServers.ts immportante
+-subServerController.ts
+-proxyController.ts para o Proxy
+-LoggerController.ts é importante
+-fileController.ts
+
+//Modules
+-handleErros.ts
+-handleSuccess.ts
+
+
+Mais importante deizar(Prioridades)
+1º-Raft a funcionar
+2º-Sistema de Logs
+3º-Reverse Proxy
