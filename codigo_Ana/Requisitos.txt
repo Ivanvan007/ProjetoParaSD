@@ -1,0 +1,38 @@
+VAMOS PRECISAR DE:
+
+Um ficheiro com a configuração de todos os DataNodes(O stor deu acho)
+
+O Script do Reverse Proxy que O stor deu
+
+No Manager vamos ter uma lista com todos os servidores parta inicializar
+No Manager vamos ter um dicionario com todos os servidores inicializados(Os que estão a correr),
+     e o endereço http(node.getHttp())
+No Manager uma função de Start para ligar todos os Servidores
+No manager uma função de Stop para desligar todos os Servidores
+
+
+No Server.js vamos ter os mecanismos de eleição, a escrita/leitura de dados,
+     replicação dos dados para todos os Servidores do DataNode,
+     a geração do hash md5, uma função de número aleatorio para a votação de master 
+
+ReverseProxy vai a estar na porta 3000
+
+DataNode 1 porta 31XX:
+    Servidor 1,1 porta 3100
+    Servidor 1,2 porta 3101
+    Servidor 1,3 porta 3102
+    Servidor 1,4 porta 3103
+DataNode 2 porta 32XX:
+    Servidor 2,1 porta 3200
+    Servidor 2,2 porta 3201
+    Serrvidor 2,3 porta 3202
+    Servidor 2,4 porta 3203
+
+DataNode 3 porta 33XX:
+    Servidor 3,1 porta 3300
+    Servidor 3,2 porta 3301
+    Servidor 3,3 porta 3302
+
+Cada Servidor vai ser uma instancia da classe Node 
+
+
