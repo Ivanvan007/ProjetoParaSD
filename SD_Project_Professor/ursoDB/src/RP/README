@@ -1,0 +1,24 @@
+O - servidor tem duas rotas:
+
+/stat  => pede a estatistica do servidor.
+
+/api   => de acordo com o query string assim envia para um dos dois servidores.
+          Se id=abc entao faz o proxy para o servidor localizado em localhost:3000
+          Se id=cde entao faz o proxy para o servidor localizado em localhost:3100
+
+1 - Para o install fazer:
+  npm install
+
+2 - para activar o servidor:
+  npm start
+
+
+3- para testar
+   Após, naturalmente o servidor estar a correr, mais os dois servidores para onde se ira fazer o proxy ( portos 3000 e 3100),
+   ir a um browser e fazer:
+
+       http://ocalhost:4000/api?id=abc       <= vai mandar o pedido para o servidor que está a correr no porto 3000 
+       http://ocalhost:4000/api?id=cde       <= vai mandar o pedido para o servidor que está a correr no porto 3100 
+       http://ocalhost:4000/stat             <= vai apresentar a estatistica do servidor
+
+4 - de proposito não se está a gerir os erros que possam acontecer nem a usar o sistema de logging
